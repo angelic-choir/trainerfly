@@ -6,8 +6,6 @@ const navigateToHPHome = () => {
   const baseURL = window.location.origin;
   const url = `${baseURL}/${mobileHomeURLSuffix}`;
 
-  console.log("Navigating to:", url);
-
   window.location.href = url;
 };
 

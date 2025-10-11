@@ -13,8 +13,6 @@ export function useAuth() {
     const getCurrentUser = async () => {
         const data = await get('/user');
 
-        console.log("User: ", data);
-
         userStore.user = data;
     }
 

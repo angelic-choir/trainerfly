@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
 import { Category } from '@/types/hivepress/category-types'
 import { useListings } from '@/composables/useListings';
 import { useMapStore } from '@/stores/map';
@@ -44,10 +43,6 @@ const viewChildCategories = () => {
     // Get Child Categories for Category
     getCategories(mapStore.location, undefined, props.category.id)
 }
-
-onMounted(() => {
-    console.log(`${props.category.name} mounted with icon ${props.category.icon}`)
-})
 
 </script>
 
