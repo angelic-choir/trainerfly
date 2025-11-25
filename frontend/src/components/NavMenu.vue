@@ -61,10 +61,10 @@ const goToCreateListing = () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-0 justify-center items-center">
-  <UButton v-if="!isLoggedIn" class="uppercase font-bold" color="primary" variant="ghost" label="Log in"
-    @click="goToLogin" />
-  <UNavigationMenu v-else :items="items" />
-  <UButton v-if="isLoggedIn" class="uppercase font-bold" color="primary" variant="ghost" label="Become a Trainer" @click="goToCreateListing" />
+  <div class="flex flex-col h-full gap-0 justify-between items-center">
+    <UButton v-if="!isLoggedIn" class="uppercase font-bold" color="primary" variant="ghost" label="Log in"
+      @click="goToLogin" />
+    <UNavigationMenu v-else :items="items" />
+    <UButton class="uppercase font-bold" color="primary" variant="ghost" label="Become a Trainer" @click="goToCreateListing" />
   </div>
 </template>
