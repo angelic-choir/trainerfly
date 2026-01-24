@@ -29,6 +29,9 @@ watch(
 
 const goToListing = () => {
   if (listing.value) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/361e7f73-dad7-45cc-96f6-5ef1e3fc3064',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'VendorDrawer.vue:30',message:'goToListing clicked',data:{hasListing:true,listingId:listing.value.id,listingHasUrl:!!listing.value.url},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H4'})}).catch(()=>{});
+    // #endregion
     // router.push(`/listing/${listing.value.id}`)
     window.location.href = listing.value.url;
   }

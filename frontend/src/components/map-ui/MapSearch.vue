@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import ModeSwitch from '@/components/ModeSwitch.vue'
 import { useMapSearch } from '@/composables/useMapSearch.ts'
 import { useRouter } from 'vue-router'
@@ -11,6 +11,7 @@ const props = defineProps({
 
 const { query, suggestions, retrieve, preventSuggestions, selectedSuggestion } = useMapSearch()
 const { clearAll } = useSideMenu()
+const mobileInputRef = ref(null)
 
 // Function to handle the selection of a suggestion
 const selectSuggestion = async (suggestion) => {
@@ -34,6 +35,21 @@ const search = async () => {
 const onEnter = async () => {
   if (suggestions.value && suggestions.value.length > 0) {
     await selectSuggestion(suggestions.value[0])
+  }
+}
+
+const focusMobileInput = async () => {
+  await nextTick()
+  const inputEl = document.getElementById('location-search-field-mobile')
+  if (inputEl && 'focus' in inputEl) {
+    inputEl.focus()
+    inputEl.click()
+    return
+  }
+  const fallbackInput = mobileInputRef.value?.$el?.querySelector?.('input')
+  if (fallbackInput) {
+    fallbackInput.focus()
+    fallbackInput.click()
   }
 }
 
@@ -97,10 +113,7 @@ const goToRemote = () => {
         size="xl"
         color="primary"
         class="z-40 pointer-events-auto px-4"
-        @click="() => {
-          const input = document.getElementById('location-search-field-mobile')
-          if (input) input.focus()
-        }"
+        @click="focusMobileInput"
       >
         <span>Do search here</span>
       </UButton>
@@ -131,6 +144,7 @@ const goToRemote = () => {
             <UInput
               v-model="query"
               id="location-search-field-mobile"
+            ref="mobileInputRef"
               placeholder="Search location"
               variant="soft"
               color="neutral"
