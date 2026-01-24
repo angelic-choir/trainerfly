@@ -8,10 +8,12 @@ import { type LngLatLike } from 'maplibre-gl'
 import { type MapboxFeature } from '@/types/map/mapbox-types'
 import { type MapInstance } from '@indoorequal/vue-maplibre-gl'
 import FreeDrawer from '@/components/FreeDrawer.vue'
+import { useScreenBreakpoints } from '@/composables/useScreenBreakpoints'
 
 const mapStore = useMapStore()
 const map: MapInstance = useMap('main')
 const location = computed<MapboxFeature>(() => mapStore.location)
+const { isMobile } = useScreenBreakpoints()
 
 type FreeDrawerType = InstanceType<typeof FreeDrawer>
 const drawerRef = ref<FreeDrawerType>()
@@ -33,7 +35,7 @@ const fitToCoordinates = (location: MapboxFeature) => {
 
     // Only show options after map animation completes
     setTimeout(() => {
-      if (drawerRef.value) {
+      if (!isMobile.value && drawerRef.value) {
         drawerRef.value.isOpen = true
       }
     }, 1000)
@@ -68,7 +70,7 @@ watch(() => location.value, (newLocation: MapboxFeature) => {
 
       // Only show options after map animation completes
       setTimeout(() => {
-        if (drawerRef.value) {
+        if (!isMobile.value && drawerRef.value) {
           drawerRef.value.isOpen = true
         }
       }, 1000) // Set timeout slightly longer than animation duration
@@ -103,7 +105,7 @@ watch(() => listings.value, (newListings) => {
 
 <template>
   <div class="relative w-full h-full">
-    <FreeDrawer ref="drawerRef" direction="left" :showToggleButton="false" :initiallyOpen="false">
+    <FreeDrawer v-if="!isMobile" ref="drawerRef" direction="left" :showToggleButton="false" :initiallyOpen="false">
       <MapSideMenu />
     </FreeDrawer>
 

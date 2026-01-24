@@ -2,10 +2,12 @@
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useListingStore } from '@/stores/listing'
+import { useScreenBreakpoints } from '@/composables/useScreenBreakpoints'
 import FreeDrawer from '@/components/FreeDrawer.vue'
 
 const listingStore = useListingStore()
 const listing = computed(() => listingStore.selectedListing)
+const { isMobile } = useScreenBreakpoints()
 
 // Drawer reference and state
 type FreeDrawerType = InstanceType<typeof FreeDrawer>
@@ -32,6 +34,32 @@ const goToListing = () => {
   }
 }
 
+const clearListing = () => {
+  listingStore.selectedListing = null
+}
+
+const containerClass = computed(() => {
+  return isMobile.value ? 'flex h-full w-full items-end justify-center px-4 pb-4' : 'flex h-full w-full justify-start'
+})
+
+const panelClass = computed(() => {
+  return isMobile.value
+    ? 'relative w-full max-w-lg p-4 pt-5 h-fit flex flex-col gap-4 bg-white rounded-2xl shadow-lg'
+    : 'ml-96 w-[1000px] p-4 pt-6 h-full flex flex-col gap-4 bg-white rounded-t-xl'
+})
+
+const infoClass = computed(() => {
+  return isMobile.value ? 'flex flex-col gap-3' : 'flex flex-grow items-start gap-4'
+})
+
+const imageClass = computed(() => {
+  return isMobile.value ? 'h-20 w-20 rounded-full object-cover' : 'flex-none h-30 aspect-square rounded-lg object-cover'
+})
+
+const buttonsClass = computed(() => {
+  return isMobile.value ? 'flex w-full' : 'flex flex-none flex-col gap-2 w-64'
+})
+
 </script>
 
 <template>
@@ -43,11 +71,19 @@ const goToListing = () => {
     :transparent="true"
   >
     <!-- When Opened -->
-    <div v-if="listing" class="flex h-full w-full justify-start">
-      <div class="ml-96 w-[1000px] p-4 pt-6 h-full flex flex-col gap-4 bg-white rounded-t-xl">
+    <div v-if="listing" :class="containerClass">
+      <div :class="panelClass">
         <!-- Header: Vendor Image and Info -->
-        <div class="flex flex-grow items-start gap-4">
-          <img :src="listing.vendor.image || 'https://via.placeholder.com/150'" alt="Vendor" class="flex-none h-30 aspect-square rounded-lg object-cover" />
+        <div :class="infoClass">
+          <UButton
+            v-if="isMobile"
+            icon="lucide:x"
+            variant="ghost"
+            color="neutral"
+            class="absolute right-3 top-3"
+            @click="clearListing"
+          />
+          <img :src="listing.vendor.image || 'https://via.placeholder.com/150'" alt="Vendor" :class="imageClass" />
           <div id="info" class="flex flex-col flex-grow gap-1">
             <div class="flex gap-6 items-center">
               <h2 class="text-xl font-bold">{{ listing.vendor.name }}</h2>
@@ -60,7 +96,7 @@ const goToListing = () => {
               {{ listing.description ?? 'No description available' }}
             </p>
           </div>
-          <div id="buttons" class="flex flex-none flex-col gap-2 w-64">
+          <div id="buttons" :class="buttonsClass">
             <UButton color="primary" class="w-full" @click="goToListing">More Info / Contact</UButton>
           </div>
         </div>

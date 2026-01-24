@@ -84,19 +84,19 @@ const goToRemote = () => {
   </div>
 
   <!-- Mobile: Floating Button + Bottom Search Bar + Suggestions -->
-  <div v-else class="absolute inset-0 flex flex-col justify-end items-stretch gap-0 pointer-events-none">
-    <div class="flex flex-col w-full h-fit gap-2 items-center pointer-events-none">
+  <div v-else class="absolute inset-0 flex flex-col justify-end items-stretch gap-0 pointer-events-none z-40">
+    <div class="flex flex-col w-full h-fit gap-4 items-center pointer-events-none">
 
       <!-- Floating Search Button (always visible) -->
       <UButton
-        icon="fa6-solid:magnifying-glass"
+        icon="lucide:scan-search"
         :ui="{ 
           rounded: 'rounded-full',
           base: 'justify-center normal-case'
         }"
-        size="lg"
+        size="xl"
         color="primary"
-        class="z-40 pointer-events-auto"
+        class="z-40 pointer-events-auto px-4"
         @click="() => {
           const input = document.getElementById('location-search-field-mobile')
           if (input) input.focus()
@@ -105,9 +105,28 @@ const goToRemote = () => {
         <span>Do search here</span>
       </UButton>
 
+      <!-- Suggestions Dropdown -->
+      <div v-if="suggestions && suggestions.length > 0" class="w-full px-4 pointer-events-auto">
+        <div class="w-full bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-auto">
+          <ul class="p-2 m-0 rounded">
+            <li
+              v-for="suggestion in suggestions"
+              :key="suggestion.mapbox_id"
+              class="cursor-pointer hover:bg-gray-100 rounded-lg py-2 px-3"
+              @click="selectSuggestion(suggestion)"
+            >
+              <div class="font-medium">{{ suggestion.name }}</div>
+              <div class="text-sm text-gray-500">
+                {{ suggestion.full_address || suggestion.place_formatted }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
       <!-- Bottom Search Bar (always visible) -->
-      <div class="w-full bg-white border-t border-gray-200 z-40 pointer-events-auto">
-        <div class="flex items-center gap-2 p-4">
+      <div class="w-full bg-white border-t border-gray-200 pointer-events-auto">
+        <div class="flex items-center gap-2 px-4 py-3">
           <UInput
             v-model="query"
             id="location-search-field-mobile"
@@ -115,19 +134,31 @@ const goToRemote = () => {
             variant="soft"
             color="neutral"
             class="flex-1"
+            size="xl"
             @keyup.enter="onEnter"
             type="search"
           />
           <UButton
-            icon="fa6-solid:magnifying-glass"
+            icon="lucide:search"
             @click="search"
             color="primary"
-            variant="ghost"
+            variant="solid"
+            size="xl"
             class="flex-shrink-0"
           />
         </div>
       </div>
-
+      <div class="w-full bg-white pointer-events-auto">
+        <UButton
+          icon="lucide:rocket"
+          text="Search online trainers instead"
+          @click="goToRemote"
+          color="primary"
+          variant="ghost"
+          size="lg"
+          class="flex-shrink-0"
+        />
+      </div>
     </div>  
   </div>
 </template>
