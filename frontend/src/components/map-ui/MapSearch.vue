@@ -125,40 +125,42 @@ const goToRemote = () => {
       </div>
 
       <!-- Bottom Search Bar (always visible) -->
-      <div class="w-full bg-white border-t border-gray-200 pointer-events-auto">
-        <div class="flex items-center gap-2 px-4 py-3">
-          <UInput
-            v-model="query"
-            id="location-search-field-mobile"
-            placeholder="Search location"
-            variant="soft"
-            color="neutral"
-            class="flex-1"
-            size="xl"
-            @keyup.enter="onEnter"
-            type="search"
-          />
+      <div class="w-full bg-white">
+        <div class="w-full pointer-events-auto">
+          <div class="flex items-center gap-2 px-2 py-3">
+            <UInput
+              v-model="query"
+              id="location-search-field-mobile"
+              placeholder="Search location"
+              variant="soft"
+              color="neutral"
+              class="flex-1"
+              size="xl"
+              @keyup.enter="onEnter"
+              type="search"
+            />
+            <UButton
+              icon="lucide:search"
+              @click="search"
+              color="primary"
+              variant="solid"
+              size="xl"
+              class="flex-shrink-0"
+            />
+          </div>
+        </div>
+        <div class="flex justify-center w-full bg-white pointer-events-auto">
           <UButton
-            icon="lucide:search"
-            @click="search"
+            icon="lucide:rocket"
+            label="Search online trainers instead"
+            @click="goToRemote"
             color="primary"
-            variant="solid"
-            size="xl"
-            class="flex-shrink-0"
+            variant="ghost"
+            size="lg"
+            class="flex-shrink-0 normal-case w-full mb-4"
           />
         </div>
       </div>
-      <div class="w-full bg-white pointer-events-auto">
-        <UButton
-          icon="lucide:rocket"
-          text="Search online trainers instead"
-          @click="goToRemote"
-          color="primary"
-          variant="ghost"
-          size="lg"
-          class="flex-shrink-0"
-        />
-      </div>
-    </div>  
+    </div>
   </div>
 </template>
