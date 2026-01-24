@@ -114,5 +114,10 @@ watch(() => listings.value, (newListings) => {
     <MglMap mapKey="main" map-style="https://tiles.openfreemap.org/styles/liberty" :max-bounds="[[-180, 17], [-65, 72]]"
       :max-pitch="0" :max-zoom="15" min-zoom="5" :center="[-100, 40]" :zoom="5" :pitch="0" :bearing="0"
       :antialias="false" :preserve-drawing-buffer="false" />
+    
+    <!-- Mobile Overlay (true overlay inside map container) -->
+    <div class="absolute inset-0 pointer-events-none z-40">
+      <slot name="mobile-overlay" />
+    </div>
   </div>
 </template>

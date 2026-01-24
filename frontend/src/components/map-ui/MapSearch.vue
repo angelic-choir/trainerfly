@@ -1,8 +1,13 @@
 <script setup>
+import { ref } from 'vue'
 import ModeSwitch from '@/components/ModeSwitch.vue'
 import { useMapSearch } from '@/composables/useMapSearch.ts'
 import { useRouter } from 'vue-router'
 import { useSideMenu } from '@/composables/useSideMenu'
+
+const props = defineProps({
+  mobile: { type: Boolean, default: false }
+})
 
 const { query, suggestions, retrieve, preventSuggestions, selectedSuggestion } = useMapSearch()
 const { clearAll } = useSideMenu()
@@ -17,12 +22,12 @@ const selectSuggestion = async (suggestion) => {
   query.value = suggestion.name
 
   // Automatically retrieve the selected suggestion, better UX IMO
-  retrieve(selectedSuggestion.value)
+  await retrieve(selectedSuggestion.value)
 }
 
 // Find and navigate to the selected place
-const search = () => {
-  retrieve(selectedSuggestion.value)
+const search = async () => {
+  await retrieve(selectedSuggestion.value)
 }
 
 // Function to handle the 'enter' keyboard shortcut
@@ -46,8 +51,8 @@ const goToRemote = () => {
 </script>
 
 <template>
-  <!--Goes within the Header component slot -->
-  <div class="flex flex-col gap-2 justify-center h-full items-center">
+  <!-- Desktop: Header Search -->
+  <div v-if="!mobile" class="flex flex-col gap-2 justify-center h-full items-center">
     <div class="flex gap-2 justify-center items-center relative">
       <label for="location-search-field" class="uppercase font-extrabold">Location: </label>
       <div class="relative w-64">
@@ -76,10 +81,53 @@ const goToRemote = () => {
       <UButton label="Search for Online" variant="outline"
                color="primary" @click="goToRemote" />
     </div>
-    <!-- The Learn/Share switchwill be removed for now. -->
-    <!-- <div class="flex gap-2 justify-center items-center">
-      <span class="uppercase font-bold">Let's:</span>
-      <ModeSwitch labelOne="Learn" labelTwo="Share" />
-    </div> -->
+  </div>
+
+  <!-- Mobile: Floating Button + Bottom Search Bar + Suggestions -->
+  <div v-else class="absolute inset-0 flex flex-col justify-end items-stretch gap-0 pointer-events-none">
+    <div class="flex flex-col w-full h-fit gap-2 items-center pointer-events-none">
+
+      <!-- Floating Search Button (always visible) -->
+      <UButton
+        icon="fa6-solid:magnifying-glass"
+        :ui="{ 
+          rounded: 'rounded-full',
+          base: 'justify-center normal-case'
+        }"
+        size="lg"
+        color="primary"
+        class="z-40 pointer-events-auto"
+        @click="() => {
+          const input = document.getElementById('location-search-field-mobile')
+          if (input) input.focus()
+        }"
+      >
+        <span>Do search here</span>
+      </UButton>
+
+      <!-- Bottom Search Bar (always visible) -->
+      <div class="w-full bg-white border-t border-gray-200 z-40 pointer-events-auto">
+        <div class="flex items-center gap-2 p-4">
+          <UInput
+            v-model="query"
+            id="location-search-field-mobile"
+            placeholder="Search location"
+            variant="soft"
+            color="neutral"
+            class="flex-1"
+            @keyup.enter="onEnter"
+            type="search"
+          />
+          <UButton
+            icon="fa6-solid:magnifying-glass"
+            @click="search"
+            color="primary"
+            variant="ghost"
+            class="flex-shrink-0"
+          />
+        </div>
+      </div>
+
+    </div>  
   </div>
 </template>
