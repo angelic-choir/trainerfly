@@ -63,6 +63,12 @@ const items = computed(() => {
 });
 
 const goToCreateListing = () => {
+  if (!isLoggedIn.value) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/361e7f73-dad7-45cc-96f6-5ef1e3fc3064',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NavMenu.vue:62',message:'goToCreateListing blocked (not logged in)',data:{isLoggedIn:false},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H3'})}).catch(()=>{});
+    // #endregion
+    return
+  }
   // #region agent log
   fetch('http://127.0.0.1:7242/ingest/361e7f73-dad7-45cc-96f6-5ef1e3fc3064',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NavMenu.vue:62',message:'goToCreateListing clicked',data:{target:`${baseWebURL}/?hp_route=listing_submit_profile_page#/`},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H3'})}).catch(()=>{});
   // #endregion

@@ -4,6 +4,9 @@ import ModeSwitch from '@/components/ModeSwitch.vue'
 import { useMapSearch } from '@/composables/useMapSearch.ts'
 import { useRouter } from 'vue-router'
 import { useSideMenu } from '@/composables/useSideMenu'
+import { useMap } from '@indoorequal/vue-maplibre-gl'
+import { useListings } from '@/composables/useListings'
+import { useMapStore } from '@/stores/map'
 
 const props = defineProps({
   mobile: { type: Boolean, default: false }
@@ -12,6 +15,9 @@ const props = defineProps({
 const { query, suggestions, retrieve, preventSuggestions, selectedSuggestion } = useMapSearch()
 const { clearAll } = useSideMenu()
 const mobileInputRef = ref(null)
+const mapStore = useMapStore()
+const map = useMap('main')
+const { getCategories } = useListings()
 
 // Function to handle the selection of a suggestion
 const selectSuggestion = async (suggestion) => {
@@ -51,6 +57,29 @@ const focusMobileInput = async () => {
     fallbackInput.focus()
     fallbackInput.click()
   }
+}
+
+const useMapCenterLocation = async () => {
+  if (!map?.map) return
+  const center = map.map.getCenter()
+  query.value = 'Custom location'
+  preventSuggestions()
+  const newLocation = {
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [center.lng, center.lat]
+    },
+    properties: {
+      mapbox_id: 'center',
+      coordinates: {
+        longitude: center.lng,
+        latitude: center.lat
+      }
+    }
+  }
+  mapStore.location = newLocation
+  await getCategories(newLocation)
 }
 
 //#region Navigate to Remote Listing Screen
@@ -113,7 +142,7 @@ const goToRemote = () => {
         size="xl"
         color="primary"
         class="z-40 pointer-events-auto px-4"
-        @click="focusMobileInput"
+        @click="() => { useMapCenterLocation(); focusMobileInput() }"
       >
         <span>Do search here</span>
       </UButton>
