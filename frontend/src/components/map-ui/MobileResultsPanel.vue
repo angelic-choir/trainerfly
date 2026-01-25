@@ -5,6 +5,7 @@ import { useLoading } from '@/composables/useLoading'
 import { useMapStore } from '@/stores/map'
 import SideMenuLoadingVisual from '@/components/loading-ui/SideMenuLoadingVisual.vue'
 import { onBeforeEnter, onEnter } from '@/helpers/animation'
+import { useScreenBreakpoints } from '@/composables/useScreenBreakpoints'
 
 const props = defineProps<{
   suggestions: Array<any>
@@ -18,6 +19,7 @@ const emit = defineEmits<{
 const { displayListings, categories, listings, selectedCategory, searchQuery } = useSideMenu()
 const { loading, startLoading, loadWatcherCallback } = useLoading()
 const mapStore = useMapStore()
+const { isTablet } = useScreenBreakpoints()
 
 watch(categories, loadWatcherCallback, { immediate: true })
 watch(listings, loadWatcherCallback)
@@ -33,6 +35,14 @@ const showPanel = computed(() => {
   if (props.forceVisible) return true
   if (!hasLocation.value) return false
   return loading.value || categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value
+})
+
+const categoryGridClass = computed(() => {
+  return isTablet.value ? 'grid grid-cols-4 gap-4' : 'grid grid-cols-2 gap-4'
+})
+
+const listingGridClass = computed(() => {
+  return isTablet.value ? 'grid grid-cols-2 gap-4' : 'flex flex-col gap-4'
 })
 </script>
 
@@ -78,7 +88,7 @@ const showPanel = computed(() => {
             appear
             @before-enter="onBeforeEnter"
             @enter="onEnter"
-            :class="{ 'grid grid-cols-2 gap-4': !displayListings, 'flex flex-col gap-4': displayListings }"
+            :class="displayListings ? listingGridClass : categoryGridClass"
           >
             <CategoryCard
               v-for="(c, i) in categories"

@@ -7,7 +7,7 @@ export function useScreenBreakpoints() {
     desktop: 1024,
   })
 
-  const isMobile = breakpoints.smaller('tablet')
+  const isMobile = breakpoints.smaller('desktop')
   const isTablet = breakpoints.between('tablet', 'desktop')
   const isDesktop = breakpoints.greaterOrEqual('desktop')
 
