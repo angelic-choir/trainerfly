@@ -8,56 +8,25 @@ import { useMap } from '@indoorequal/vue-maplibre-gl'
 import { useListings } from '@/composables/useListings'
 import { useMapStore } from '@/stores/map'
 import MobileResultsPanel from '@/components/map-ui/MobileResultsPanel.vue'
+import { useListingStore } from '@/stores/listing'
 
 const props = defineProps({
   mobile: { type: Boolean, default: false }
 })
 
 const { query, suggestions, retrieve, preventSuggestions, selectedSuggestion } = useMapSearch()
-const { clearAll, goBack, categories, listings, selectedCategory, searchQuery } = useSideMenu()
+const { clearAll, goBack, categories, listings, selectedCategory, displayListings } = useSideMenu()
 const mobileInputRef = ref(null)
 const mapStore = useMapStore()
+const listingStore = useListingStore()
 const map = useMap('main')
-const { getCategories } = useListings()
+const { getCategories, removeMarkersFromMap } = useListings()
 const showSearchHere = ref(false)
 const mapListenersAttached = ref(false)
-const searchMode = ref('location')
-const hasLocation = computed(() => {
-  const mapboxId = mapStore.location?.properties?.mapbox_id
-  return Boolean(mapboxId && mapboxId !== '0')
-})
-const suggestionsOpen = computed(() => {
-  if (searchMode.value !== 'location') return false
-  return (suggestions.value?.length ?? 0) > 0
-})
+const suggestionsOpen = computed(() => (suggestions.value?.length ?? 0) > 0)
 const showBackButton = computed(() => {
   if (suggestionsOpen.value) return true
-  if (searchMode.value === 'category') {
-    return categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value
-  }
-  return false
-})
-const searchInputValue = computed({
-  get: () => (searchMode.value === 'location' ? query.value : searchQuery.value),
-  set: (value) => {
-    if (searchMode.value === 'location') {
-      query.value = value
-      return
-    }
-    searchQuery.value = value
-  }
-})
-const searchPlaceholder = computed(() => {
-  return searchMode.value === 'location' ? 'Search location' : 'Search categories'
-})
-
-watch(hasLocation, (value) => {
-  if (value) {
-    searchMode.value = 'category'
-    searchQuery.value = ''
-    return
-  }
-  searchMode.value = 'location'
+  return categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value
 })
 
 watch(() => mapStore.location?.properties?.mapbox_id, () => {
@@ -131,10 +100,19 @@ const handleBackClick = () => {
     preventSuggestions()
     return
   }
-  if (searchMode.value === 'category') {
+  if (displayListings.value || (selectedCategory.value && selectedCategory.value.parent !== 0)) {
     goBack()
-    searchMode.value = 'location'
-    searchQuery.value = ''
+    focusMobileInput()
+    return
+  }
+  if (categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value) {
+    listingStore.listings = []
+    listingStore.categories = []
+    listingStore.display = false
+    listingStore.selectedCategory = null
+    listingStore.selectedListing = null
+    mapStore.resetLocation()
+    removeMarkersFromMap()
     focusMobileInput()
   }
 }
@@ -251,10 +229,10 @@ const goToRemote = () => {
               @click="handleBackClick"
             />
             <UInput
-              v-model="searchInputValue"
+              v-model="query"
               id="location-search-field-mobile"
             ref="mobileInputRef"
-              :placeholder="searchPlaceholder"
+              placeholder="Search location"
               variant="soft"
               color="neutral"
               class="flex-1"

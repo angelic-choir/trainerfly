@@ -29,7 +29,8 @@ const hasLocation = computed(() => {
 const showSuggestions = computed(() => (props.suggestions?.length ?? 0) > 0)
 const showPanel = computed(() => {
   if (showSuggestions.value) return true
-  return hasLocation.value && (categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value)
+  if (!hasLocation.value) return false
+  return loading.value || categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value
 })
 </script>
 
