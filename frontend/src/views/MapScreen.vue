@@ -1,7 +1,6 @@
 <script setup lang="js">
 import Map from '@/components/map-ui/Map.vue'
 import MapSearch from '@/components/map-ui/MapSearch.vue'
-import MobileBrowsePanel from '@/components/map-ui/MobileBrowsePanel.vue'
 import Header from "@/components/Header.vue";
 import { useScreenBreakpoints } from '@/composables/useScreenBreakpoints'
 import { useRouter } from 'vue-router'
@@ -28,7 +27,6 @@ const router = useRouter()
       <Map>
         <template #mobile-overlay>
           <MapSearch v-if="isMobile" :mobile="true" />
-          <MobileBrowsePanel v-if="isMobile" />
         </template>
       </Map>
     </div>
