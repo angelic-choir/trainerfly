@@ -14,17 +14,50 @@ const props = defineProps({
 })
 
 const { query, suggestions, retrieve, preventSuggestions, selectedSuggestion } = useMapSearch()
-const { clearAll, goBack, categories, listings, selectedCategory } = useSideMenu()
+const { clearAll, goBack, categories, listings, selectedCategory, searchQuery } = useSideMenu()
 const mobileInputRef = ref(null)
 const mapStore = useMapStore()
 const map = useMap('main')
 const { getCategories } = useListings()
 const showSearchHere = ref(false)
 const mapListenersAttached = ref(false)
-const suggestionsOpen = computed(() => (suggestions.value?.length ?? 0) > 0)
+const searchMode = ref('location')
+const hasLocation = computed(() => {
+  const mapboxId = mapStore.location?.properties?.mapbox_id
+  return Boolean(mapboxId && mapboxId !== '0')
+})
+const suggestionsOpen = computed(() => {
+  if (searchMode.value !== 'location') return false
+  return (suggestions.value?.length ?? 0) > 0
+})
 const showBackButton = computed(() => {
   if (suggestionsOpen.value) return true
-  return categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value
+  if (searchMode.value === 'category') {
+    return categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value
+  }
+  return false
+})
+const searchInputValue = computed({
+  get: () => (searchMode.value === 'location' ? query.value : searchQuery.value),
+  set: (value) => {
+    if (searchMode.value === 'location') {
+      query.value = value
+      return
+    }
+    searchQuery.value = value
+  }
+})
+const searchPlaceholder = computed(() => {
+  return searchMode.value === 'location' ? 'Search location' : 'Search categories'
+})
+
+watch(hasLocation, (value) => {
+  if (value) {
+    searchMode.value = 'category'
+    searchQuery.value = ''
+    return
+  }
+  searchMode.value = 'location'
 })
 
 watch(() => mapStore.location?.properties?.mapbox_id, () => {
@@ -98,8 +131,10 @@ const handleBackClick = () => {
     preventSuggestions()
     return
   }
-  if (categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value) {
+  if (searchMode.value === 'category') {
     goBack()
+    searchMode.value = 'location'
+    searchQuery.value = ''
     focusMobileInput()
   }
 }
@@ -216,10 +251,10 @@ const goToRemote = () => {
               @click="handleBackClick"
             />
             <UInput
-              v-model="query"
+              v-model="searchInputValue"
               id="location-search-field-mobile"
             ref="mobileInputRef"
-              placeholder="Search location"
+              :placeholder="searchPlaceholder"
               variant="soft"
               color="neutral"
               class="flex-1"

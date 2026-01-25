@@ -65,17 +65,6 @@ const showPanel = computed(() => {
       </div>
 
       <template v-else>
-        <div v-if="!displayListings" class="px-4 pb-2 pt-3">
-          <UInput
-            v-model="searchQuery"
-            placeholder="Search categories"
-            variant="soft"
-            color="neutral"
-            size="md"
-            class="w-full"
-          />
-        </div>
-
         <div class="border-t border-gray-100" />
 
         <div class="max-h-[45vh] overflow-y-auto px-4 pb-4 pt-3">
