@@ -157,7 +157,27 @@ const goToRemote = () => {
   </div>
 
   <!-- Mobile: Floating Button + Bottom Search Bar + Suggestions -->
-  <div v-else class="absolute inset-0 flex flex-col justify-end items-stretch gap-0 pointer-events-none z-40">
+  <div v-else class="absolute inset-0 flex flex-col justify-between items-stretch gap-0 pointer-events-none z-40">
+    <div class="flex flex-col w-full h-fit gap-4 items-center pointer-events-none pt-4">
+      <!-- Suggestions Dropdown -->
+      <div v-if="suggestions && suggestions.length > 0" class="w-full px-4 pointer-events-auto">
+        <div class="w-full bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-auto">
+          <ul class="p-2 m-0 rounded">
+            <li
+              v-for="suggestion in suggestions"
+              :key="suggestion.mapbox_id"
+              class="cursor-pointer hover:bg-gray-100 rounded-lg py-2 px-3"
+              @click="selectSuggestion(suggestion)"
+            >
+              <div class="font-medium">{{ suggestion.name }}</div>
+              <div class="text-sm text-gray-500">
+                {{ suggestion.full_address || suggestion.place_formatted }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <div class="flex flex-col w-full h-fit gap-4 items-center pointer-events-none">
 
       <!-- Floating Search Button (only after manual map move) -->
@@ -178,25 +198,6 @@ const goToRemote = () => {
           </UButton>
         </div>
       </Transition>
-
-      <!-- Suggestions Dropdown -->
-      <div v-if="suggestions && suggestions.length > 0" class="w-full px-4 pointer-events-auto">
-        <div class="w-full bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-auto">
-          <ul class="p-2 m-0 rounded">
-            <li
-              v-for="suggestion in suggestions"
-              :key="suggestion.mapbox_id"
-              class="cursor-pointer hover:bg-gray-100 rounded-lg py-2 px-3"
-              @click="selectSuggestion(suggestion)"
-            >
-              <div class="font-medium">{{ suggestion.name }}</div>
-              <div class="text-sm text-gray-500">
-                {{ suggestion.full_address || suggestion.place_formatted }}
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
 
       <!-- Bottom Search Bar (always visible) -->
       <div class="w-full bg-white">
