@@ -188,7 +188,7 @@ const goToRemote = () => {
 
   <!-- Mobile: Floating Button + Bottom Search Bar + Suggestions -->
   <div v-else class="absolute inset-0 flex flex-col justify-between items-stretch gap-0 pointer-events-none z-40">
-    <div class="flex flex-col w-full h-fit gap-4 items-center pointer-events-none pt-4">
+    <div class="flex flex-col w-full flex-1 min-h-0 gap-4 items-center pointer-events-none pt-4 pb-4">
       <MobileResultsPanel
         :suggestions="suggestions"
         @selectSuggestion="selectSuggestion"

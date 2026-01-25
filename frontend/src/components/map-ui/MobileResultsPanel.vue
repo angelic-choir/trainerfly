@@ -8,6 +8,7 @@ import { onBeforeEnter, onEnter } from '@/helpers/animation'
 
 const props = defineProps<{
   suggestions: Array<any>
+  forceVisible?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -29,15 +30,16 @@ const hasLocation = computed(() => {
 const showSuggestions = computed(() => (props.suggestions?.length ?? 0) > 0)
 const showPanel = computed(() => {
   if (showSuggestions.value) return true
+  if (props.forceVisible) return true
   if (!hasLocation.value) return false
   return loading.value || categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value
 })
 </script>
 
 <template>
-  <div v-if="showPanel" class="w-full px-4 pointer-events-auto">
-    <div class="w-full max-h-[60vh] overflow-hidden rounded-2xl border border-gray-200 bg-white/95 shadow-lg backdrop-blur-sm">
-      <div class="flex items-center justify-between px-4 pt-4">
+  <div v-if="showPanel" class="w-full h-full px-4 pointer-events-auto">
+    <div class="w-full h-full max-h-full overflow-hidden rounded-2xl border border-gray-200 bg-white/95 shadow-lg backdrop-blur-sm flex flex-col min-h-0">
+      <div class="flex items-center justify-between px-4 pt-4 flex-none">
         <span v-if="showSuggestions" class="text-xs font-semibold uppercase tracking-wide text-gray-600">
           Search Suggestions
         </span>
@@ -49,7 +51,7 @@ const showPanel = computed(() => {
         </span>
       </div>
 
-      <div v-if="showSuggestions" class="max-h-[45vh] overflow-y-auto px-4 pb-4 pt-3">
+      <div v-if="showSuggestions" class="flex-1 min-h-0 overflow-y-auto px-4 pb-4 pt-3">
         <ul class="p-0 m-0 rounded">
           <li
             v-for="suggestion in props.suggestions"
@@ -68,7 +70,7 @@ const showPanel = computed(() => {
       <template v-else>
         <div class="border-t border-gray-100" />
 
-        <div class="max-h-[45vh] overflow-y-auto px-4 pb-4 pt-3">
+        <div class="flex-1 min-h-0 overflow-y-auto px-4 pb-4 pt-3">
           <SideMenuLoadingVisual v-if="loading" :listing="displayListings" />
           <TransitionGroup
             v-else
