@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, watch, watchEffect, onUnmounted } from 'vue'
 import ModeSwitch from '@/components/ModeSwitch.vue'
 import { useMapSearch } from '@/composables/useMapSearch.ts'
 import { useRouter } from 'vue-router'
@@ -18,6 +18,34 @@ const mobileInputRef = ref(null)
 const mapStore = useMapStore()
 const map = useMap('main')
 const { getCategories } = useListings()
+const showSearchHere = ref(false)
+const mapListenersAttached = ref(false)
+
+watch(() => mapStore.location?.properties?.mapbox_id, () => {
+  showSearchHere.value = false
+})
+
+const handleUserMove = (event) => {
+  if (event && 'originalEvent' in event && !event.originalEvent) return
+  showSearchHere.value = true
+}
+
+watchEffect(() => {
+  if (!map?.map || mapListenersAttached.value) return
+  mapListenersAttached.value = true
+  map.map.on('dragstart', handleUserMove)
+  map.map.on('zoomstart', handleUserMove)
+  map.map.on('rotatestart', handleUserMove)
+  map.map.on('pitchstart', handleUserMove)
+})
+
+onUnmounted(() => {
+  if (!map?.map || !mapListenersAttached.value) return
+  map.map.off('dragstart', handleUserMove)
+  map.map.off('zoomstart', handleUserMove)
+  map.map.off('rotatestart', handleUserMove)
+  map.map.off('pitchstart', handleUserMove)
+})
 
 // Function to handle the selection of a suggestion
 const selectSuggestion = async (suggestion) => {
@@ -132,20 +160,24 @@ const goToRemote = () => {
   <div v-else class="absolute inset-0 flex flex-col justify-end items-stretch gap-0 pointer-events-none z-40">
     <div class="flex flex-col w-full h-fit gap-4 items-center pointer-events-none">
 
-      <!-- Floating Search Button (always visible) -->
-      <UButton
-        icon="lucide:scan-search"
-        :ui="{ 
-          rounded: 'rounded-full',
-          base: 'justify-center normal-case'
-        }"
-        size="xl"
-        color="primary"
-        class="z-40 pointer-events-auto px-4"
-        @click="() => { useMapCenterLocation(); focusMobileInput() }"
-      >
-        <span>Do search here</span>
-      </UButton>
+      <!-- Floating Search Button (only after manual map move) -->
+      <Transition name="fade">
+        <div v-if="showSearchHere" class="z-40 pointer-events-auto">
+          <UButton
+            icon="lucide:scan-search"
+            :ui="{ 
+              rounded: 'rounded-full',
+              base: 'justify-center normal-case'
+            }"
+            size="xl"
+            color="primary"
+            class="px-4"
+            @click="() => { useMapCenterLocation(); focusMobileInput() }"
+          >
+            <span>Do search here</span>
+          </UButton>
+        </div>
+      </Transition>
 
       <!-- Suggestions Dropdown -->
       <div v-if="suggestions && suggestions.length > 0" class="w-full px-4 pointer-events-auto">
@@ -207,3 +239,15 @@ const goToRemote = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 500ms ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
