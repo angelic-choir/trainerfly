@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, watch, watchEffect, onUnmounted } from 'vue'
+import { ref, nextTick, watch, watchEffect, onUnmounted, computed } from 'vue'
 import ModeSwitch from '@/components/ModeSwitch.vue'
 import { useMapSearch } from '@/composables/useMapSearch.ts'
 import { useRouter } from 'vue-router'
@@ -13,13 +13,18 @@ const props = defineProps({
 })
 
 const { query, suggestions, retrieve, preventSuggestions, selectedSuggestion } = useMapSearch()
-const { clearAll } = useSideMenu()
+const { clearAll, goBack, categories, listings, selectedCategory } = useSideMenu()
 const mobileInputRef = ref(null)
 const mapStore = useMapStore()
 const map = useMap('main')
 const { getCategories } = useListings()
 const showSearchHere = ref(false)
 const mapListenersAttached = ref(false)
+const suggestionsOpen = computed(() => (suggestions.value?.length ?? 0) > 0)
+const showBackButton = computed(() => {
+  if (suggestionsOpen.value) return true
+  return categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value
+})
 
 watch(() => mapStore.location?.properties?.mapbox_id, () => {
   showSearchHere.value = false
@@ -84,6 +89,17 @@ const focusMobileInput = async () => {
   if (fallbackInput) {
     fallbackInput.focus()
     fallbackInput.click()
+  }
+}
+
+const handleBackClick = () => {
+  if (suggestionsOpen.value) {
+    preventSuggestions()
+    return
+  }
+  if (categories.value.length > 0 || listings.value.length > 0 || selectedCategory.value) {
+    goBack()
+    focusMobileInput()
   }
 }
 
@@ -203,6 +219,15 @@ const goToRemote = () => {
       <div class="w-full bg-white">
         <div class="w-full pointer-events-auto">
           <div class="flex items-center gap-2 px-2 py-3">
+            <UButton
+              v-if="showBackButton"
+              icon="lucide:arrow-left"
+              color="neutral"
+              variant="ghost"
+              size="lg"
+              class="flex-shrink-0"
+              @click="handleBackClick"
+            />
             <UInput
               v-model="query"
               id="location-search-field-mobile"
