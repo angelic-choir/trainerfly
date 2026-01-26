@@ -6,6 +6,7 @@ import ui from '@nuxt/ui/vite'
 import uiThemeConfig from "./theme-config"
 
 export default defineConfig({
+  base: '/wp-content/plugins/trainerfly/frontend/dist/',
   plugins: [
     vue(),
     ui(uiThemeConfig)

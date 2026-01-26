@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
-@import url('../public/fonts.css');
+@import './fonts.css';
 
 
 /* Why set here?
@@ -20,4 +20,7 @@
   --font-sans: 'Poppins', sans-serif;
 }
 
+body {
+  font-family: 'Poppins', sans-serif;
+}
 
